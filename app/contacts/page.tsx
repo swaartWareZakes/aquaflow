@@ -30,12 +30,11 @@ export default function ContactPage() {
                {/* Address Card */}
                <ContactCard 
                   icon={<MapPin className="h-8 w-8" />}
-                  title="Visit Our HQ"
+                  title="Address"
                   content={
                     <>
-                      Tech Innovation Hub,<br />
-                      Midrand,<br />
-                      Gauteng, South Africa
+                     TBD <br />
+                     Gauteng
                     </>
                   }
                />
@@ -46,7 +45,7 @@ export default function ContactPage() {
                   title="Contact Details"
                   content={
                     <>
-                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflow.com</span>
+                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflowsa.com</span>
                       <span className="block hover:underline cursor-pointer">+27 76 380 4108</span>
                     </>
                   }
