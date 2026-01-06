@@ -1,8 +1,38 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Phone, Clock, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Clock, Send, Loader2 } from "lucide-react";
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  // Handle Form Submission via Fetch (AJAX)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    
+    try {
+      await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        // Convert FormData to URLSearchParams
+        body: new URLSearchParams(formData as any).toString(),
+      });
+      setSuccess(true);
+      // Optional: Reset form here if needed
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="bg-white text-slate-900 overflow-x-hidden">
       
@@ -20,47 +50,32 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* 2. CONTACT INFO (SKEWED BLUE SECTION) */}
+      {/* 2. CONTACT INFO SECTION */}
       <section className="relative z-10 bg-brand -skew-y-2 py-32 -mt-24">
-         
-         {/* Un-skew content */}
          <div className="mx-auto max-w-7xl px-6 skew-y-2 text-white">
             <div className="grid gap-12 md:grid-cols-3">
-               
-               {/* Address Card */}
                <ContactCard 
                   icon={<MapPin className="h-8 w-8" />}
-                  title="Address"
+                  title="Address(TBD)"
                   content={
-                    <>
-                     TBD <br />
-                     Gauteng
-                    </>
+                    <>TBD <br /> Gauteng, South Africa</>
                   }
                />
-
-               {/* Email/Phone Card */}
                <ContactCard 
                   icon={<Phone className="h-8 w-8" />}
                   title="Contact Details"
                   content={
                     <>
-                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflowsa.com</span>
+                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflowsa.co.za</span>
                       <span className="block hover:underline cursor-pointer">+27 76 380 4108</span>
                     </>
                   }
                />
-
-               {/* Hours Card */}
                <ContactCard 
                   icon={<Clock className="h-8 w-8" />}
                   title="Business Hours"
                   content={
-                    <>
-                      Mon - Fri: 8:00 AM - 5:00 PM<br />
-                      Sat: 9:00 AM - 1:00 PM<br />
-                      Sun: Closed
-                    </>
+                    <>Mon - Fri: 8:00 AM - 5:00 PM<br />Sat: 9:00 AM - 1:00 PM<br />Sun: Closed</>
                   }
                />
             </div>
@@ -77,81 +92,98 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* NETLIFY FORM START */}
-          {/* Added 'data-netlify="true"' and 'name="contact"' */}
-          <form 
-            name="contact"
-            method="POST"
-            data-netlify="true"
-            className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
-          >
-            {/* Required Hidden Input for Netlify */}
-            <input type="hidden" name="form-name" value="contact" />
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-slate-700">Full Name</label>
-                <input 
-                  id="name" 
-                  name="name" // Added name attribute
-                  type="text" 
-                  placeholder="John Doe"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700">Email Address</label>
-                <input 
-                  id="email" 
-                  name="email" // Added name attribute
-                  type="email" 
-                  placeholder="john@example.com"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="subject" className="text-sm font-medium text-slate-700">Subject</label>
-              <select 
-                id="subject"
-                name="subject" // Added name attribute
-                defaultValue=""
-                required
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
-              >
-                <option value="" disabled>Select a topic...</option>
-                <option value="inquiry">General Inquiry</option>
-                <option value="sales">Product Sales / Quote</option>
-                <option value="support">Technical Support</option>
-                <option value="investor">Investor Relations</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
-              <textarea 
-                id="message" 
-                name="message" // Added name attribute
-                rows={5}
-                required
-                placeholder="How can we help you today?"
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
-              />
-            </div>
-
-            <div className="pt-4">
-              <Button type="submit" className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg">
-                <Send className="mr-2 h-5 w-5" /> Send Message
+          {/* SUCCESS MESSAGE */}
+          {success ? (
+            <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center">
+              <h3 className="text-2xl font-bold text-green-800">Message Sent!</h3>
+              <p className="mt-2 text-green-700">Thank you for contacting us. We will be in touch shortly.</p>
+              <Button onClick={() => setSuccess(false)} className="mt-6 bg-green-700 text-white hover:bg-green-800 rounded-full">
+                Send Another Message
               </Button>
             </div>
-          </form>
+          ) : (
+            /* FORM START */
+            /* Removed 'data-netlify' attributes to fix build error. We use onSubmit instead. */
+            <form 
+              onSubmit={handleSubmit}
+              className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
+            >
+              {/* Important: Hidden input MUST match the name in public/forms.html */}
+              <input type="hidden" name="form-name" value="contact" />
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium text-slate-700">Full Name</label>
+                  <input 
+                    id="name" 
+                    name="name" 
+                    type="text" 
+                    placeholder="John Doe"
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-slate-700">Email Address</label>
+                  <input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    placeholder="john@example.com"
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="subject" className="text-sm font-medium text-slate-700">Subject</label>
+                <select 
+                  id="subject"
+                  name="subject"
+                  defaultValue=""
+                  required
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
+                >
+                  <option value="" disabled>Select a topic...</option>
+                  <option value="inquiry">General Inquiry</option>
+                  <option value="sales">Product Sales / Quote</option>
+                  <option value="support">Technical Support</option>
+                  <option value="investor">Investor Relations</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows={5}
+                  required
+                  placeholder="How can we help you today?"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</>
+                  ) : (
+                    <><Send className="mr-2 h-5 w-5" /> Send Message</>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
         </div>
       </section>
-
-      {/* FOOTER */}
+      
+      {/* FOOTER - Same as before */}
       <footer className="bg-brand text-white py-16 mt-20 relative z-10">
          <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-4 gap-10 text-sm">
             <div className="md:col-span-1">
@@ -161,19 +193,19 @@ export default function ContactPage() {
              <div>
                 <h4 className="font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2 text-white/70">
-                    <li><Link href="/" className="hover:text-white transition">Home</Link></li>
-                    <li><Link href="/about" className="hover:text-white transition">About Us</Link></li>
-                    <li><Link href="/products" className="hover:text-white transition">Products</Link></li>
-                    <li><Link href="/contacts" className="hover:text-white transition">Contact</Link></li>
+                    <li><Link href="/">Home</Link></li>
+                    <li><Link href="/about">About Us</Link></li>
+                    <li><Link href="/products">Products</Link></li>
+                    <li><Link href="/contacts">Contact</Link></li>
                 </ul>
             </div>
             <div>
                 <h4 className="font-semibold mb-4">Product Links</h4>
                 <ul className="space-y-2 text-white/70">
-                    <li><Link href="/products" className="hover:text-white transition">Purifiers</Link></li>
-                    <li><Link href="/products" className="hover:text-white transition">Domestic Purifiers</Link></li>
-                    <li><Link href="/products" className="hover:text-white transition">Hydro Life</Link></li>
-                    <li><Link href="/products" className="hover:text-white transition">Rain Water Filters</Link></li>
+                    <li><Link href="/products">Purifiers</Link></li>
+                    <li><Link href="/products">Domestic Purifiers</Link></li>
+                    <li><Link href="/products">Hydro Life</Link></li>
+                    <li><Link href="/products">Rain Water Filters</Link></li>
                 </ul>
             </div>
             <div>
@@ -189,8 +221,6 @@ export default function ContactPage() {
   );
 }
 
-// --- Helper Component ---
-
 function ContactCard({ icon, title, content }: { icon: React.ReactNode; title: string; content: React.ReactNode }) {
    return (
       <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm hover:bg-white/15 transition-colors">
@@ -198,9 +228,7 @@ function ContactCard({ icon, title, content }: { icon: React.ReactNode; title: s
             {icon}
          </div>
          <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-         <div className="text-white/80 leading-relaxed">
-            {content}
-         </div>
+         <div className="text-white/80 leading-relaxed">{content}</div>
       </div>
    )
 }
