@@ -136,7 +136,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label htmlFor="subject" className="text-sm font-medium text-slate-700">Subject</label>
                 <select 
                   id="subject"
@@ -151,7 +151,7 @@ export default function ContactPage() {
                   <option value="support">Technical Support</option>
                   <option value="investor">Investor Relations</option>
                 </select>
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
