@@ -78,14 +78,26 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <form className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm">
+          {/* NETLIFY FORM START */}
+          {/* Added 'data-netlify="true"' and 'name="contact"' */}
+          <form 
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
+          >
+            {/* Required Hidden Input for Netlify */}
+            <input type="hidden" name="form-name" value="contact" />
+
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium text-slate-700">Full Name</label>
                 <input 
                   id="name" 
+                  name="name" // Added name attribute
                   type="text" 
                   placeholder="John Doe"
+                  required
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
                 />
               </div>
@@ -93,8 +105,10 @@ export default function ContactPage() {
                 <label htmlFor="email" className="text-sm font-medium text-slate-700">Email Address</label>
                 <input 
                   id="email" 
+                  name="email" // Added name attribute
                   type="email" 
                   placeholder="john@example.com"
+                  required
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
                 />
               </div>
@@ -104,7 +118,9 @@ export default function ContactPage() {
               <label htmlFor="subject" className="text-sm font-medium text-slate-700">Subject</label>
               <select 
                 id="subject"
+                name="subject" // Added name attribute
                 defaultValue=""
+                required
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
               >
                 <option value="" disabled>Select a topic...</option>
@@ -119,14 +135,16 @@ export default function ContactPage() {
               <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
               <textarea 
                 id="message" 
+                name="message" // Added name attribute
                 rows={5}
+                required
                 placeholder="How can we help you today?"
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
               />
             </div>
 
             <div className="pt-4">
-              <Button className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg">
+              <Button type="submit" className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg">
                 <Send className="mr-2 h-5 w-5" /> Send Message
               </Button>
             </div>
