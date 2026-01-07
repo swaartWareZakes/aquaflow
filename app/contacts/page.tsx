@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Phone, Clock, Send, Loader2 } from "lucide-react";
+import { MapPin, Phone, Clock, Send, Loader2 } from "lucide-react"; // Added Loader2 for loading state
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // This function handles the sending to Netlify
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -21,6 +22,7 @@ export default function ContactPage() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams(formData as any).toString(),
       });
+      // Show success message ON THE SAME PAGE instead of redirecting
       setSuccess(true);
     } catch (error) {
       console.error("Form error:", error);
@@ -54,26 +56,17 @@ export default function ContactPage() {
                <ContactCard 
                   icon={<MapPin className="h-8 w-8" />}
                   title="Visit Our HQ"
-                  content={
-                    <>Tech Innovation Hub,<br />Midrand,<br />Gauteng, South Africa</>
-                  }
+                  content={<>Tech Innovation Hub,<br />Midrand,<br />Gauteng, South Africa</>}
                />
                <ContactCard 
                   icon={<Phone className="h-8 w-8" />}
                   title="Contact Details"
-                  content={
-                    <>
-                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflow.com</span>
-                      <span className="block hover:underline cursor-pointer">+27 76 380 4108</span>
-                    </>
-                  }
+                  content={<><span className="block mb-2">info@aquaflow.com</span><span className="block">+27 76 380 4108</span></>}
                />
                <ContactCard 
                   icon={<Clock className="h-8 w-8" />}
                   title="Business Hours"
-                  content={
-                    <>Mon - Fri: 8:00 AM - 5:00 PM<br />Sat: 9:00 AM - 1:00 PM<br />Sun: Closed</>
-                  }
+                  content={<>Mon - Fri: 8:00 AM - 5:00 PM<br />Sat: 9:00 AM - 1:00 PM<br />Sun: Closed</>}
                />
             </div>
          </div>
@@ -89,42 +82,34 @@ export default function ContactPage() {
             </p>
           </div>
 
+          {/* SUCCESS STATE: Shows this instead of redirecting */}
           {success ? (
-            <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center">
-              <h3 className="text-2xl font-bold text-green-800">Message Sent!</h3>
+            <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center shadow-sm">
+              <h3 className="text-2xl font-bold text-green-800">Message Sent Successfully!</h3>
               <p className="mt-2 text-green-700">Thank you for contacting us. We will be in touch shortly.</p>
               <Button onClick={() => setSuccess(false)} className="mt-6 bg-green-700 text-white hover:bg-green-800 rounded-full">
                 Send Another Message
               </Button>
             </div>
           ) : (
+            /* FORM STATE */
             <form 
               onSubmit={handleSubmit}
               className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
             >
-              {/* HIDDEN INPUT: Crucial for Netlify to recognize the form */}
+              {/* HIDDEN INPUT: Crucial for Netlify Connection */}
               <input type="hidden" name="form-name" value="contact" />
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium text-slate-700">Full Name</label>
-                  <input 
-                    id="name" 
-                    name="name" 
-                    type="text" 
-                    placeholder="John Doe"
-                    required
+                  <input id="name" name="name" type="text" placeholder="John Doe" required
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
                   />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium text-slate-700">Email Address</label>
-                  <input 
-                    id="email" 
-                    name="email" 
-                    type="email" 
-                    placeholder="john@example.com"
-                    required
+                  <input id="email" name="email" type="email" placeholder="john@example.com" required
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
                   />
                 </div>
@@ -132,12 +117,8 @@ export default function ContactPage() {
 
               <div className="space-y-2">
                 <label htmlFor="topic" className="text-sm font-medium text-slate-700">Subject</label>
-                {/* RENAMED: 'subject' -> 'topic' so Netlify uses your custom email subject setting */}
-                <select 
-                  id="topic"
-                  name="topic" 
-                  defaultValue=""
-                  required
+                {/* RENAMED TO 'topic' so Netlify uses your custom subject line */}
+                <select id="topic" name="topic" defaultValue="" required
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
                 >
                   <option value="" disabled>Select a topic...</option>
@@ -150,22 +131,13 @@ export default function ContactPage() {
 
               <div className="space-y-2">
                 <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
-                <textarea 
-                  id="message" 
-                  name="message" 
-                  rows={5}
-                  required
-                  placeholder="How can we help you today?"
+                <textarea id="message" name="message" rows={5} required placeholder="How can we help you today?"
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
                 />
               </div>
 
               <div className="pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-50"
-                >
+                <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-70">
                   {isSubmitting ? (
                     <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</>
                   ) : (
