@@ -9,29 +9,26 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Handle Form Submission via Fetch (AJAX)
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.currentTarget);
-    
+    const formData = new FormData(event.currentTarget);
+
     try {
       await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        // Convert FormData to URLSearchParams
         body: new URLSearchParams(formData as any).toString(),
       });
       setSuccess(true);
-      // Optional: Reset form here if needed
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Form error:", error);
       alert("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
   return (
     <main className="bg-white text-slate-900 overflow-x-hidden">
@@ -56,9 +53,9 @@ export default function ContactPage() {
             <div className="grid gap-12 md:grid-cols-3">
                <ContactCard 
                   icon={<MapPin className="h-8 w-8" />}
-                  title="Address(TBD)"
+                  title="Visit Our HQ"
                   content={
-                    <>TBD <br /> Gauteng, South Africa</>
+                    <>Tech Innovation Hub,<br />Midrand,<br />Gauteng, South Africa</>
                   }
                />
                <ContactCard 
@@ -66,7 +63,7 @@ export default function ContactPage() {
                   title="Contact Details"
                   content={
                     <>
-                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflowsa.co.za</span>
+                      <span className="block mb-2 hover:underline cursor-pointer">info@aquaflow.com</span>
                       <span className="block hover:underline cursor-pointer">+27 76 380 4108</span>
                     </>
                   }
@@ -92,7 +89,6 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* SUCCESS MESSAGE */}
           {success ? (
             <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center">
               <h3 className="text-2xl font-bold text-green-800">Message Sent!</h3>
@@ -102,13 +98,11 @@ export default function ContactPage() {
               </Button>
             </div>
           ) : (
-            /* FORM START */
-            /* Removed 'data-netlify' attributes to fix build error. We use onSubmit instead. */
             <form 
               onSubmit={handleSubmit}
               className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
             >
-              {/* Important: Hidden input MUST match the name in public/forms.html */}
+              {/* HIDDEN INPUT: Crucial for Netlify to recognize the form */}
               <input type="hidden" name="form-name" value="contact" />
 
               <div className="grid gap-6 md:grid-cols-2">
@@ -136,11 +130,12 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium text-slate-700">Subject</label>
+              <div className="space-y-2">
+                <label htmlFor="topic" className="text-sm font-medium text-slate-700">Subject</label>
+                {/* RENAMED: 'subject' -> 'topic' so Netlify uses your custom email subject setting */}
                 <select 
-                  id="subject"
-                  name="subject"
+                  id="topic"
+                  name="topic" 
                   defaultValue=""
                   required
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
@@ -151,7 +146,7 @@ export default function ContactPage() {
                   <option value="support">Technical Support</option>
                   <option value="investor">Investor Relations</option>
                 </select>
-              </div> */}
+              </div>
 
               <div className="space-y-2">
                 <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
@@ -182,8 +177,8 @@ export default function ContactPage() {
           )}
         </div>
       </section>
-      
-      {/* FOOTER - Same as before */}
+
+      {/* FOOTER */}
       <footer className="bg-brand text-white py-16 mt-20 relative z-10">
          <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-4 gap-10 text-sm">
             <div className="md:col-span-1">
