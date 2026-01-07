@@ -9,9 +9,6 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Post to the current route (recommended). If your page path is different, update this.
-  const FORM_ACTION_PATH = "/contacts";
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -19,12 +16,21 @@ export default function ContactPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
 
+    const payload = {
+      name: String(formData.get("name") || ""),
+      email: String(formData.get("email") || ""),
+      topic: String(formData.get("topic") || ""),
+      message: String(formData.get("message") || ""),
+    };
+
     try {
-      await fetch(FORM_ACTION_PATH, {
+      const res = await fetch("/.netlify/functions/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData as any).toString(),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
+      if (!res.ok) throw new Error(await res.text());
 
       setSuccess(true);
       form.reset();
@@ -110,7 +116,6 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* SUCCESS STATE */}
           {success ? (
             <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center shadow-sm">
               <h3 className="text-2xl font-bold text-green-800">
@@ -127,27 +132,13 @@ export default function ContactPage() {
               </Button>
             </div>
           ) : (
-            /* FORM STATE */
             <form
-              name="contact"
-              method="POST"
-              data-netlify="true"
-              data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
               className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
             >
-              {/* Honeypot field (spam trap) */}
-              <input type="hidden" name="bot-field" />
-
-              {/* Netlify form identifier (must match form name) */}
-              <input type="hidden" name="form-name" value="contact" />
-
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-slate-700"
-                  >
+                  <label htmlFor="name" className="text-sm font-medium text-slate-700">
                     Full Name
                   </label>
                   <input
@@ -161,10 +152,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-slate-700"
-                  >
+                  <label htmlFor="email" className="text-sm font-medium text-slate-700">
                     Email Address
                   </label>
                   <input
@@ -179,15 +167,9 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="topic"
-                  className="text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="topic" className="text-sm font-medium text-slate-700">
                   Subject
                 </label>
-
-                {/* Keep "topic" if you like, but note: Netlify notifications won't use it as the email subject automatically.
-                    If you want a guaranteed subject line in the email body, keep it as a field like this (recommended). */}
                 <select
                   id="topic"
                   name="topic"
@@ -206,10 +188,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="message"
-                  className="text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="message" className="text-sm font-medium text-slate-700">
                   Message
                 </label>
                 <textarea
@@ -250,42 +229,25 @@ export default function ContactPage() {
           <div className="md:col-span-1">
             <p className="font-semibold text-lg">AquaFlow</p>
             <p className="mt-4 text-white/70">
-              AquaFlow is a leading company in the market established itself as
-              a Private Limited company.
+              AquaFlow is a leading company in the market established itself as a Private Limited company.
             </p>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-white/70">
-              <li>
-                <Link href="/">Home</Link>
-              </li>
-              <li>
-                <Link href="/about">About Us</Link>
-              </li>
-              <li>
-                <Link href="/products">Products</Link>
-              </li>
-              <li>
-                <Link href="/contacts">Contact</Link>
-              </li>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/products">Products</Link></li>
+              <li><Link href="/contacts">Contact</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Product Links</h4>
             <ul className="space-y-2 text-white/70">
-              <li>
-                <Link href="/products">Purifiers</Link>
-              </li>
-              <li>
-                <Link href="/products">Domestic Purifiers</Link>
-              </li>
-              <li>
-                <Link href="/products">Hydro Life</Link>
-              </li>
-              <li>
-                <Link href="/products">Rain Water Filters</Link>
-              </li>
+              <li><Link href="/products">Purifiers</Link></li>
+              <li><Link href="/products">Domestic Purifiers</Link></li>
+              <li><Link href="/products">Hydro Life</Link></li>
+              <li><Link href="/products">Rain Water Filters</Link></li>
             </ul>
           </div>
           <div>
@@ -312,9 +274,7 @@ function ContactCard({
 }) {
   return (
     <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm hover:bg-white/15 transition-colors">
-      <div className="mb-4 text-white p-3 bg-white/10 rounded-full">
-        {icon}
-      </div>
+      <div className="mb-4 text-white p-3 bg-white/10 rounded-full">{icon}</div>
       <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
       <div className="text-white/80 leading-relaxed">{content}</div>
     </div>
