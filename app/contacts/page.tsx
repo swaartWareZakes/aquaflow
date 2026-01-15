@@ -1,4 +1,3 @@
-// app/contacts/page.tsx  (or wherever your ContactPage lives)
 "use client";
 
 import { useState } from "react";
@@ -8,42 +7,11 @@ import { MapPin, Phone, Clock, Send, Loader2 } from "lucide-react";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  // We only use this to show the spinner while the browser navigates away
+  function handleNativeSubmit() {
     setIsSubmitting(true);
-
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-
-    const payload = {
-      name: String(formData.get("name") || ""),
-      email: String(formData.get("email") || ""),
-      topic: String(formData.get("topic") || ""),
-      message: String(formData.get("message") || ""),
-    };
-
-    try {
-      const res = await fetch("/.netlify/functions/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || `Request failed: ${res.status}`);
-      }
-
-      setSuccess(true);
-      form.reset();
-    } catch (error) {
-      console.error("Form error:", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    // We do NOT preventDefault here. We let the browser post to Netlify.
   }
 
   return (
@@ -120,124 +88,116 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* SUCCESS STATE */}
-          {success ? (
-            <div className="rounded-3xl border border-green-200 bg-green-50 p-12 text-center shadow-sm">
-              <h3 className="text-2xl font-bold text-green-800">
-                Message Sent Successfully!
-              </h3>
-              <p className="mt-2 text-green-700">
-                Thank you for contacting us. We will be in touch shortly.
-              </p>
-              <Button
-                onClick={() => setSuccess(false)}
-                className="mt-6 bg-green-700 text-white hover:bg-green-800 rounded-full"
-              >
-                Send Another Message
-              </Button>
-            </div>
-          ) : (
-            /* FORM STATE */
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
-            >
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Full Name
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="John Doe"
-                    required
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="john@example.com"
-                    required
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                  />
-                </div>
-              </div>
-
+          {/* NETLIFY FORM */}
+          {/* - removed custom onSubmit with fetch 
+              - added data-netlify="true"
+              - added hidden inputs required for Netlify to detect the form
+          */}
+          <form
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            onSubmit={handleNativeSubmit}
+            className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
+          >
+            {/* HIDDEN INPUTS REQUIRED FOR NETLIFY */}
+            <input type="hidden" name="form-name" value="contact" />
+            
+            <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <label
-                  htmlFor="topic"
+                  htmlFor="name"
                   className="text-sm font-medium text-slate-700"
                 >
-                  Subject
+                  Full Name
                 </label>
-                <select
-                  id="topic"
-                  name="topic"
-                  defaultValue=""
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="John Doe"
                   required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
-                >
-                  <option value="" disabled>
-                    Select a topic...
-                  </option>
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="Product Sales / Quote">Product Sales / Quote</option>
-                  <option value="Technical Support">Technical Support</option>
-                  <option value="Investor Relations">Investor Relations</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="message"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={5}
-                  required
-                  placeholder="How can we help you today?"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
                 />
               </div>
 
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-70"
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-slate-700"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-5 w-5" /> Send Message
-                    </>
-                  )}
-                </Button>
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  required
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                />
               </div>
-            </form>
-          )}
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="topic"
+                className="text-sm font-medium text-slate-700"
+              >
+                Subject
+              </label>
+              <select
+                id="topic"
+                name="topic"
+                defaultValue=""
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
+              >
+                <option value="" disabled>
+                  Select a topic...
+                </option>
+                <option value="General Inquiry">General Inquiry</option>
+                <option value="Product Sales / Quote">Product Sales / Quote</option>
+                <option value="Technical Support">Technical Support</option>
+                <option value="Investor Relations">Investor Relations</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="message"
+                className="text-sm font-medium text-slate-700"
+              >
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows={5}
+                required
+                placeholder="How can we help you today?"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
+              />
+            </div>
+
+            <div className="pt-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-70"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-5 w-5" /> Send Message
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       </section>
 
