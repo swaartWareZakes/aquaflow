@@ -3,20 +3,43 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, Send, Loader2 } from "lucide-react";
+import { MapPin, Phone, Clock, Send, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  function handleNativeSubmit() {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); // Stop the page reload
     setIsSubmitting(true);
-    // We let the browser handle the POST submission naturally
+    setErrorMessage("");
+
+    const formData = new FormData(event.currentTarget);
+    
+    try {
+      // Send data to Netlify via a hidden POST
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        // Convert FormData to URLSearchParams for Netlify
+        body: new URLSearchParams(formData as any).toString(),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+      } else {
+        setErrorMessage("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      setErrorMessage("Network error. Please check your connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <main className="bg-white text-slate-900 overflow-x-hidden">
-      {/* ... Hero and Info sections remain unchanged ... */}
-
       {/* 1. HERO SECTION */}
       <section className="mx-auto max-w-7xl px-6 pt-24 pb-48">
         <div className="max-w-3xl">
@@ -89,104 +112,135 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <form
-            name="contact"
-            method="POST"
-            // Netlify attributes are still needed here for valid HTML submission
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
-            onSubmit={handleNativeSubmit}
-            className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
-          >
-            {/* HIDDEN INPUTS: Crucial for linking to the Netlify backend */}
-            <input type="hidden" name="form-name" value="contact" />
-            <div hidden>
-              <input name="bot-field" />
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-slate-700">
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                />
+          <div className="bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm">
+            {isSuccess ? (
+              // SUCCESS STATE VIEW
+              <div className="text-center py-12 animate-in fade-in zoom-in duration-500">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 mb-6">
+                  <CheckCircle2 className="h-10 w-10 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">Message Sent!</h3>
+                <p className="text-slate-600 mb-8 max-w-md mx-auto">
+                  Thank you for reaching out. We have received your message and will get back to you shortly.
+                </p>
+                <Button 
+                  onClick={() => setIsSuccess(false)}
+                  variant="outline"
+                  className="rounded-full"
+                >
+                  Send Another Message
+                </Button>
               </div>
-
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="topic" className="text-sm font-medium text-slate-700">
-                Subject
-              </label>
-              <select
-                id="topic"
-                name="topic"
-                defaultValue=""
-                required
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
+            ) : (
+              // FORM VIEW
+              <form
+                name="contact"
+                method="POST"
+                onSubmit={handleSubmit}
+                className="space-y-6"
               >
-                <option value="" disabled>Select a topic...</option>
-                <option value="General Inquiry">General Inquiry</option>
-                <option value="Product Sales / Quote">Product Sales / Quote</option>
-                <option value="Technical Support">Technical Support</option>
-                <option value="Investor Relations">Investor Relations</option>
-              </select>
-            </div>
+                {/* HIDDEN INPUTS: 
+                  Even though we use fetch, these must remain to ensure the
+                  DOM matches what Netlify expects.
+                */}
+                <input type="hidden" name="form-name" value="contact" />
+                <div hidden>
+                  <input name="bot-field" />
+                </div>
 
-            <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium text-slate-700">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={5}
-                required
-                placeholder="How can we help you today?"
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
-              />
-            </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label htmlFor="name" className="text-sm font-medium text-slate-700">
+                      Full Name
+                    </label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="John Doe"
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                    />
+                  </div>
 
-            <div className="pt-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-70"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-5 w-5" /> Send Message
-                  </>
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="text-sm font-medium text-slate-700">
+                      Email Address
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="john@example.com"
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="topic" className="text-sm font-medium text-slate-700">
+                    Subject
+                  </label>
+                  <select
+                    id="topic"
+                    name="topic"
+                    defaultValue=""
+                    required
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
+                  >
+                    <option value="" disabled>Select a topic...</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Product Sales / Quote">Product Sales / Quote</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Investor Relations">Investor Relations</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="message" className="text-sm font-medium text-slate-700">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    required
+                    placeholder="How can we help you today?"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all resize-none"
+                  />
+                </div>
+
+                {errorMessage && (
+                  <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+                    {errorMessage}
+                  </div>
                 )}
-              </Button>
-            </div>
-          </form>
 
-      {/* Footer remains unchanged */}
+                <div className="pt-4">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full rounded-full bg-brand py-6 text-lg font-medium text-white hover:bg-brand-dark shadow-lg disabled:opacity-70"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-5 w-5" /> Send Message
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
       <footer className="bg-brand text-white py-16 mt-20 relative z-10">
         <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-4 gap-10 text-sm">
           <div className="md:col-span-1">
@@ -199,35 +253,19 @@ export default function ContactPage() {
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-white/70">
-              <li>
-                <Link href="/">Home</Link>
-              </li>
-              <li>
-                <Link href="/about">About Us</Link>
-              </li>
-              <li>
-                <Link href="/products">Products</Link>
-              </li>
-              <li>
-                <Link href="/contacts">Contact</Link>
-              </li>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/products">Products</Link></li>
+              <li><Link href="/contacts">Contact</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Product Links</h4>
             <ul className="space-y-2 text-white/70">
-              <li>
-                <Link href="/products">Purifiers</Link>
-              </li>
-              <li>
-                <Link href="/products">Domestic Purifiers</Link>
-              </li>
-              <li>
-                <Link href="/products">Hydro Life</Link>
-              </li>
-              <li>
-                <Link href="/products">Rain Water Filters</Link>
-              </li>
+              <li><Link href="/products">Purifiers</Link></li>
+              <li><Link href="/products">Domestic Purifiers</Link></li>
+              <li><Link href="/products">Hydro Life</Link></li>
+              <li><Link href="/products">Rain Water Filters</Link></li>
             </ul>
           </div>
           <div>
@@ -239,8 +277,6 @@ export default function ContactPage() {
           </div>
         </div>
       </footer>
-        </div>
-      </section>
     </main>
   );
 }
