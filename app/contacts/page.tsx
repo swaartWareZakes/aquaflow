@@ -8,14 +8,15 @@ import { MapPin, Phone, Clock, Send, Loader2 } from "lucide-react";
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // We only use this to show the spinner while the browser navigates away
   function handleNativeSubmit() {
     setIsSubmitting(true);
-    // We do NOT preventDefault here. We let the browser post to Netlify.
+    // We let the browser handle the POST submission naturally
   }
 
   return (
     <main className="bg-white text-slate-900 overflow-x-hidden">
+      {/* ... Hero and Info sections remain unchanged ... */}
+
       {/* 1. HERO SECTION */}
       <section className="mx-auto max-w-7xl px-6 pt-24 pb-48">
         <div className="max-w-3xl">
@@ -88,27 +89,24 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* NETLIFY FORM */}
-          {/* - removed custom onSubmit with fetch 
-              - added data-netlify="true"
-              - added hidden inputs required for Netlify to detect the form
-          */}
           <form
             name="contact"
             method="POST"
+            // Netlify attributes are still needed here for valid HTML submission
             data-netlify="true"
+            data-netlify-honeypot="bot-field"
             onSubmit={handleNativeSubmit}
             className="space-y-6 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm"
           >
-            {/* HIDDEN INPUTS REQUIRED FOR NETLIFY */}
+            {/* HIDDEN INPUTS: Crucial for linking to the Netlify backend */}
             <input type="hidden" name="form-name" value="contact" />
-            
+            <div hidden>
+              <input name="bot-field" />
+            </div>
+
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="name" className="text-sm font-medium text-slate-700">
                   Full Name
                 </label>
                 <input
@@ -122,10 +120,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="email"
-                  className="text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="email" className="text-sm font-medium text-slate-700">
                   Email Address
                 </label>
                 <input
@@ -140,10 +135,7 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="topic"
-                className="text-sm font-medium text-slate-700"
-              >
+              <label htmlFor="topic" className="text-sm font-medium text-slate-700">
                 Subject
               </label>
               <select
@@ -153,9 +145,7 @@ export default function ContactPage() {
                 required
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all appearance-none"
               >
-                <option value="" disabled>
-                  Select a topic...
-                </option>
+                <option value="" disabled>Select a topic...</option>
                 <option value="General Inquiry">General Inquiry</option>
                 <option value="Product Sales / Quote">Product Sales / Quote</option>
                 <option value="Technical Support">Technical Support</option>
@@ -164,10 +154,7 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="message"
-                className="text-sm font-medium text-slate-700"
-              >
+              <label htmlFor="message" className="text-sm font-medium text-slate-700">
                 Message
               </label>
               <textarea
@@ -198,10 +185,8 @@ export default function ContactPage() {
               </Button>
             </div>
           </form>
-        </div>
-      </section>
 
-      {/* FOOTER */}
+      {/* Footer remains unchanged */}
       <footer className="bg-brand text-white py-16 mt-20 relative z-10">
         <div className="mx-auto max-w-7xl px-6 grid md:grid-cols-4 gap-10 text-sm">
           <div className="md:col-span-1">
@@ -254,6 +239,8 @@ export default function ContactPage() {
           </div>
         </div>
       </footer>
+        </div>
+      </section>
     </main>
   );
 }
