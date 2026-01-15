@@ -85,7 +85,7 @@ export default function ContactPage() {
               title="Contact Details"
               content={
                 <>
-                  <span className="block mb-2">info@aquaflow.com</span>
+                  <span className="block mb-2">info@aquaflowsa.co.za</span>
                   <span className="block">+27 76 380 4108</span>
                 </>
               }
